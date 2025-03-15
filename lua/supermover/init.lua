@@ -1,6 +1,6 @@
 local M = {}
 
-local map_helpers = require("treesitter-renamer.helpers.map")
+local map_helpers = require("supermover.helpers.map")
 
 M.setup = function(opts)
 	M.set_keymaps(opts)
