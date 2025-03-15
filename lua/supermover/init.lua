@@ -11,14 +11,6 @@ M.set_keymaps = function(opts)
 	vim.keymap.set("n", move_file, M.supermove, { desc = "Move current file" })
 end
 
-M.supermove = function()
-	require("telescope.builtin").find_files({
-		find_command = { "fd", "--type", "d" },
-		attach_mappings = supermover,
-		prompt_title = "Choose target dir",
-	})
-end
-
 local function supermover(prompt_bufnr, map)
 	local actions = require("telescope.actions")
 	local action_state = require("telescope.actions.state")
@@ -40,6 +32,14 @@ local function supermover(prompt_bufnr, map)
 	end)
 
 	return true
+end
+
+M.supermove = function()
+	require("telescope.builtin").find_files({
+		find_command = { "fd", "--type", "d" },
+		attach_mappings = supermover,
+		prompt_title = "Choose target dir",
+	})
 end
 
 return M
