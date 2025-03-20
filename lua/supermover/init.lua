@@ -7,8 +7,13 @@ M.setup = function(opts)
 end
 
 M.set_keymaps = function(opts)
-	local move_file = map_helpers.dig(opts, "bindings", "move_file") or "<leader>fm"
-	vim.keymap.set("n", move_file, M.supermove, { desc = "Move current file" })
+	local keys_to_bind = map_helpers.dig(opts, "bindings", "move_file") or "<leader>fm"
+	local picker = map_helpers.dig(opts, "picker") or "telescope"
+	if picker == "telescope" then
+		vim.keymap.set("n", keys_to_bind, M.supermove_with_telescope, { desc = "Move current file" })
+	elseif picker == "snacks" then
+		vim.keymap.set("n", keys_to_bind, M.supermove_with_snacks, { desc = "Move current file" })
+	end
 end
 
 local function supermover(prompt_bufnr, map)
@@ -34,11 +39,32 @@ local function supermover(prompt_bufnr, map)
 	return true
 end
 
-M.supermove = function()
+M.supermove_with_telescope = function()
 	require("telescope.builtin").find_files({
 		find_command = { "fd", "--type", "d" },
 		attach_mappings = supermover,
 		prompt_title = "Choose target dir",
+	})
+end
+
+M.supermove_with_snacks = function()
+	local snacks = require("snacks")
+	snacks.picker.pick({
+		title = "Directories",
+		format = "text",
+		finder = function(opts, ctx)
+			local proc_opts = {
+				cmd = "fd",
+				args = { ".", "--type", "directory" },
+			}
+			return require("snacks.picker.source.proc").proc({ opts, proc_opts }, ctx)
+		end,
+		confirm = function(picker, item)
+			picker:close()
+			if item then
+				vim.api.nvim_command("Move " .. item.text)
+			end
+		end,
 	})
 end
 
