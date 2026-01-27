@@ -57,7 +57,49 @@ M.supermove_with_snacks = function()
 				cmd = "fd",
 				args = { ".", "--type", "directory" },
 			}
-			return require("snacks.picker.source.proc").proc({ opts, proc_opts }, ctx)
+			return require("snacks.picker.source.proc").proc(proc_opts, ctx)
+		end,
+		preview = function(ctx)
+			ctx.preview:reset()
+			ctx.preview:minimal()
+
+			if not ctx.item or not ctx.item.text then
+				ctx.preview:notify("No directory selected", "error")
+				return
+			end
+
+			local dir_path = ctx.item.text
+			ctx.preview:set_title(dir_path)
+
+			local lines = {}
+			local ok, dir_iter = pcall(vim.fs.dir, dir_path)
+			if not ok then
+				ctx.preview:notify("Cannot read directory: " .. dir_path, "error")
+				return
+			end
+
+			local entries = {}
+			for name, type in dir_iter do
+				table.insert(entries, { name = name, type = type })
+			end
+
+			table.sort(entries, function(a, b)
+				if a.type ~= b.type then
+					return a.type == "directory"
+				end
+				return a.name < b.name
+			end)
+
+			for _, entry in ipairs(entries) do
+				local icon = entry.type == "directory" and "📁" or "📄"
+				table.insert(lines, icon .. " " .. entry.name)
+			end
+
+			if #lines == 0 then
+				table.insert(lines, "(empty directory)")
+			end
+
+			ctx.preview:set_lines(lines)
 		end,
 		confirm = function(picker, item)
 			picker:close()
