@@ -22,7 +22,8 @@ Add the following code to your `lazy` config:
   opts = {
     bindings = {
       move_file = "<leader>fm"
-    }
+    },
+    picker = "telescope" -- or snacks
   },
 }
 ```
