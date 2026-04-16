@@ -24,6 +24,7 @@ local function supermover(prompt_bufnr, map)
 		actions.close(prompt_bufnr)
 		local selection = action_state.get_selected_entry()
 		vim.api.nvim_command("Move " .. selection[1])
+		vim.cmd("edit")
 	end)
 
 	map({ "i", "n" }, "<C-n>", function(prompt_bufnr)
@@ -34,6 +35,7 @@ local function supermover(prompt_bufnr, map)
 		new_dir = vim.fs.joinpath(selection[1], new_dir_name)
 		vim.api.nvim_command("Mkdir " .. new_dir)
 		vim.api.nvim_command("Move " .. new_dir)
+		vim.cmd("edit")
 	end)
 
 	return true
@@ -105,6 +107,7 @@ M.supermove_with_snacks = function()
 			picker:close()
 			if item then
 				vim.api.nvim_command("Move " .. item.text)
+				vim.cmd("edit")
 			end
 		end,
 	})
